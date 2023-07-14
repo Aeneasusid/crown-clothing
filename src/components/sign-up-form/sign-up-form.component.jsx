@@ -1,29 +1,21 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 
 import FormInput from '../form-input/form-input.component';
 import Button from '../button/button.component';
+import { UserContext } from "../../contexts/user.context";
 
-import {
-  createAuthUserWithEmailAndPassword,
-  createUserDocumentFromAuth,
-} from '../../utils/firebase/firebase.utils';
+import { createAuthUserWithEmailAndPassword, createUserDocumentFromAuth } from '../../utils/firebase/firebase.utils';
 
 import './sign-up-form.styles.scss';
 
-const defaultFormFields = {
-  displayName: '',
-  email: '',
-  password: '',
-  confirmPassword: '',
-};
+const defaultFormFields = { displayName: '', email: '', password: '', confirmPassword: '' };
 
 const SignUpForm = () => {
   const [formFields, setFormFields] = useState(defaultFormFields);
   const { displayName, email, password, confirmPassword } = formFields;
+  const { setCurrentUser } = useContext(UserContext);
 
-  const resetFormFields = () => {
-    setFormFields(defaultFormFields);
-  };
+  const resetFormFields = () => {setFormFields(defaultFormFields);};
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -34,13 +26,10 @@ const SignUpForm = () => {
     }
 
     try {
-      const { user } = await createAuthUserWithEmailAndPassword(
-        email,
-        password
-      );
-
+      const { user } = await createAuthUserWithEmailAndPassword(email, password);
       await createUserDocumentFromAuth(user, { displayName });
       resetFormFields();
+      setCurrentUser(user);
     } catch (error) {
       if (error.code === 'auth/email-already-in-use') {
         alert('Cannot create user, email already in use');
@@ -69,7 +58,6 @@ const SignUpForm = () => {
           name='displayName'
           value={displayName}
         />
-
         <FormInput
           label='Email'
           type='email'
@@ -78,7 +66,6 @@ const SignUpForm = () => {
           name='email'
           value={email}
         />
-
         <FormInput
           label='Password'
           type='password'
@@ -87,7 +74,6 @@ const SignUpForm = () => {
           name='password'
           value={password}
         />
-
         <FormInput
           label='Confirm Password'
           type='password'

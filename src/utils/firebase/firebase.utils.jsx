@@ -6,10 +6,11 @@ import {
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signOut,
 } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 
-// Your web app's Firebase configuration
+// My web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyAN6pvXt0PVwHTDIsZJ664Tu_VbcbPcuZI",
   authDomain: "crown-clothing-630e1.firebaseapp.com",
@@ -18,27 +19,17 @@ const firebaseConfig = {
   messagingSenderId: "183416232581",
   appId: "1:183416232581:web:48c9188a58f9ef3ea367ec"
 };
-
 const firebaseApp = initializeApp(firebaseConfig);
 
 const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({prompt: 'select_account',});
 
-googleProvider.setCustomParameters({
-  prompt: 'select_account',
-});
-
+export const signInWithGooglePopup = () => signInWithPopup(auth, googleProvider);
+export const signInWithGoogleRedirect = () => signInWithRedirect(auth, googleProvider);
 export const auth = getAuth();
-export const signInWithGooglePopup = () =>
-  signInWithPopup(auth, googleProvider);
-export const signInWithGoogleRedirect = () =>
-  signInWithRedirect(auth, googleProvider);
-
 export const db = getFirestore();
 
-export const createUserDocumentFromAuth = async (
-  userAuth,
-  additionalInformation = {}
-) => {
+export const createUserDocumentFromAuth = async (userAuth, additionalInformation = {}) => {
   if (!userAuth) return;
 
   const userDocRef = doc(db, 'users', userAuth.uid);
@@ -64,14 +55,15 @@ export const createUserDocumentFromAuth = async (
   return userDocRef;
 };
 
+// sign up function
 export const createAuthUserWithEmailAndPassword = async (email, password) => {
   if (!email || !password) return;
-
   return await createUserWithEmailAndPassword(auth, email, password);
 };
-
+// log in function
 export const signInAuthUserWithEmailAndPassword = async (email, password) => {
   if (!email || !password) return;
-
   return await signInWithEmailAndPassword(auth, email, password);
 };
+// sign out function
+export const signOutUser = async () => await signOut(auth);
